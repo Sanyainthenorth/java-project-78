@@ -19,6 +19,7 @@ jobs:
           java-version: 17
           distribution: 'zulu' # Alternative distribution options are available
       - name: Cache SonarQube packages
+	working-directory: ./app
         uses: actions/cache@v4
         with:
           path: ~/.sonar/cache
