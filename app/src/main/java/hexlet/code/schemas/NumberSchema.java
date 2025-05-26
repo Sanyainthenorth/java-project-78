@@ -7,20 +7,22 @@ public class NumberSchema extends BaseSchema<Integer> {
     private Integer rangeMax = null;
 
     @Override
-    public boolean isValid(Integer value) {
-        if (value == null) {
+    public boolean isValid(Object value) {
+        if (!(value instanceof Integer)) {
             return !isRequired;
         }
 
-        if (mustBePositive && value <= 0) {
+        Integer number = (Integer) value;
+
+        if (mustBePositive && number <= 0) {
             return false;
         }
 
-        if (rangeMin != null && value < rangeMin) {
+        if (rangeMin != null && number < rangeMin) {
             return false;
         }
 
-        if (rangeMax != null && value > rangeMax) {
+        if (rangeMax != null && number > rangeMax) {
             return false;
         }
 

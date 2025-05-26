@@ -2,45 +2,49 @@ package hexlet.code.schemas;
 
 import java.util.Map;
 
-public class MapSchema extends BaseSchema<Map<?, ?>> {
+public class MapSchema<T> extends BaseSchema<Map<String, T>> {
     private Integer expectedSize = null;
-    private Map<String, BaseSchema> shapeSchemas;  // Убрали <?>
+    private Map<String, BaseSchema<T>> shapeSchemas;
 
     @Override
-    public boolean isValid(Map<?, ?> value) {
+    public boolean isValid(Object value) {
         if (value == null) {
             return !isRequired;
         }
 
-        if (isRequired && !(value instanceof Map)) {
+        if (!(value instanceof Map)) {
             return false;
         }
 
-        if (expectedSize != null && value.size() != expectedSize) {
+        Map<?, ?> mapValue = (Map<?, ?>) value;
+
+        if (expectedSize != null && mapValue.size() != expectedSize) {
             return false;
         }
 
         if (shapeSchemas != null) {
-            for (Map.Entry<String, BaseSchema> entry : shapeSchemas.entrySet()) {
-                Object fieldValue = value.get(entry.getKey());
-                BaseSchema schema = entry.getValue();
+            for (Map.Entry<String, BaseSchema<T>> entry : shapeSchemas.entrySet()) {
+                Object fieldValue = mapValue.get(entry.getKey());
+                BaseSchema<T> schema = entry.getValue();
                 if (!schema.isValid(fieldValue)) {
                     return false;
                 }
             }
         }
+
         return true;
     }
 
-    public MapSchema sizeof(int size) {
+    public MapSchema<T> sizeof(int size) {
         this.expectedSize = size;
         return this;
     }
 
-    public void shape(Map<String, BaseSchema> schemas) {  // Убрали <?>
+    public void shape(Map<String, BaseSchema<T>> schemas) {
         this.shapeSchemas = schemas;
     }
 }
+
 
 
 
