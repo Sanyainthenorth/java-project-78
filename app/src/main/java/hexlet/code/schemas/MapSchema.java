@@ -3,9 +3,8 @@ package hexlet.code.schemas;
 import java.util.Map;
 
 public class MapSchema extends BaseSchema<Map<?, ?>> {
-
     private Integer expectedSize = null;
-    private Map<String, BaseSchema<?>> shapeSchemas;
+    private Map<String, BaseSchema> shapeSchemas;  // Убрали <?>
 
     @Override
     public boolean isValid(Map<?, ?> value) {
@@ -22,7 +21,7 @@ public class MapSchema extends BaseSchema<Map<?, ?>> {
         }
 
         if (shapeSchemas != null) {
-            for (Map.Entry<String, BaseSchema<?>> entry : shapeSchemas.entrySet()) {
+            for (Map.Entry<String, BaseSchema> entry : shapeSchemas.entrySet()) {
                 Object fieldValue = value.get(entry.getKey());
                 BaseSchema schema = entry.getValue();
                 if (!schema.isValid(fieldValue)) {
@@ -30,7 +29,6 @@ public class MapSchema extends BaseSchema<Map<?, ?>> {
                 }
             }
         }
-
         return true;
     }
 
@@ -39,10 +37,11 @@ public class MapSchema extends BaseSchema<Map<?, ?>> {
         return this;
     }
 
-    public void shape(Map<String, BaseSchema<?>> schemas) {
+    public void shape(Map<String, BaseSchema> schemas) {  // Убрали <?>
         this.shapeSchemas = schemas;
     }
 }
+
 
 
 
