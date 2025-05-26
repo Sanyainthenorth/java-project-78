@@ -1,14 +1,11 @@
 package hexlet.code;
-
 import hexlet.code.schemas.BaseSchema;
 import hexlet.code.schemas.NumberSchema;
 import hexlet.code.schemas.StringSchema;
 import hexlet.code.schemas.MapSchema;
 import org.junit.jupiter.api.Test;
-
 import java.util.HashMap;
 import java.util.Map;
-
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
@@ -104,8 +101,7 @@ public class ValidatorTest {
         human3.put("firstName", "Anna");
         human3.put("lastName", "B");
         assertFalse(schema.isValid(human3)); // false
-
-}
+    }
 
     @Test
     public void testMultipleValidators() {
@@ -118,7 +114,6 @@ public class ValidatorTest {
         schema.contains("wh").contains("whatthe");
         assertFalse(schema.isValid("what does the fox say"));
     }
-
     @Test
     void testEmptySchema() {
         Validator v = new Validator();

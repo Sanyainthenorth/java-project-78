@@ -2,7 +2,7 @@ package hexlet.code.schemas;
 
 import java.util.Map;
 
-public class MapSchema<T> extends BaseSchema<Map<String, T>> {
+public final class MapSchema<T> extends BaseSchema<Map<String, T>> {
     private Integer expectedSize = null;
     private Map<String, BaseSchema<T>> shapeSchemas;
 
