@@ -1,9 +1,12 @@
 package hexlet.code.schemas;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.Predicate;
+
 public final class StringSchema extends BaseSchema<String> {
 
-    private int minLength = -1;
-    private String mustContain;
+    private final Map<String, Predicate<String>> checks = new HashMap<>();
 
     @Override
     public StringSchema required() {
@@ -12,12 +15,14 @@ public final class StringSchema extends BaseSchema<String> {
     }
 
     public StringSchema minLength(int length) {
-        this.minLength = length;
+        Predicate<String> minLengthCheck = str -> str.length() >= length;
+        checks.put("minLength", minLengthCheck);
         return this;
     }
 
     public StringSchema contains(String substring) {
-        this.mustContain = substring;
+        Predicate<String> containsCheck = str -> str.contains(substring);
+        checks.put("contains", containsCheck);
         return this;
     }
 
@@ -33,15 +38,8 @@ public final class StringSchema extends BaseSchema<String> {
             return false;
         }
 
-        if (minLength >= 0 && stringValue.length() < minLength) {
-            return false;
-        }
-
-        if (mustContain != null && !stringValue.contains(mustContain)) {
-            return false;
-        }
-
-        return true;
+        return checks.values().stream()
+                     .allMatch(check -> check.test(stringValue));
     }
 }
 
