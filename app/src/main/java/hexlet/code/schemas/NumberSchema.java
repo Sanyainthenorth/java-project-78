@@ -1,10 +1,29 @@
 package hexlet.code.schemas;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Predicate;
+
 public final class NumberSchema extends BaseSchema<Integer> {
 
-    private boolean mustBePositive = false;
-    private Integer rangeMin = null;
-    private Integer rangeMax = null;
+    private final List<Predicate<Integer>> checks = new ArrayList<>();
+
+    @Override
+    public NumberSchema required() {
+        this.isRequired = true;
+        checks.add(value -> value != null);
+        return this;
+    }
+
+    public NumberSchema positive() {
+        checks.add(value -> value == null || value > 0);
+        return this;
+    }
+
+    public NumberSchema range(int min, int max) {
+        checks.add(value -> value == null || (value >= min && value <= max));
+        return this;
+    }
 
     @Override
     public boolean isValid(Object value) {
@@ -12,32 +31,15 @@ public final class NumberSchema extends BaseSchema<Integer> {
             return !isRequired;
         }
 
-        Integer number = (Integer) value;
+        Integer intValue = (Integer) value;
 
-        if (mustBePositive && number <= 0) {
-            return false;
-        }
-
-        if (rangeMin != null && number < rangeMin) {
-            return false;
-        }
-
-        if (rangeMax != null && number > rangeMax) {
-            return false;
+        for (Predicate<Integer> check : checks) {
+            if (!check.test(intValue)) {
+                return false;
+            }
         }
 
         return true;
-    }
-
-    public NumberSchema positive() {
-        this.mustBePositive = true;
-        return this;
-    }
-
-    public NumberSchema range(int min, int max) {
-        this.rangeMin = min;
-        this.rangeMax = max;
-        return this;
     }
 }
 
