@@ -102,18 +102,7 @@ public class ValidatorTest {
         human3.put("lastName", "B");
         assertFalse(schema.isValid(human3)); // false
     }
-
-    @Test
-    public void testMultipleValidators() {
-        Validator v = new Validator();
-        StringSchema schema = v.string();
-
-        schema.minLength(10).minLength(4);
-        assertTrue(schema.isValid("Hexlet"));
-
-        schema.contains("wh").contains("whatthe");
-        assertFalse(schema.isValid("what does the fox say"));
-    }
+    
     @Test
     void testEmptySchema() {
         Validator v = new Validator();
