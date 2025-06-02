@@ -18,19 +18,23 @@ public final class StringSchema extends BaseSchema<String> {
     }
 
     public StringSchema minLength(int length) {
-        checks.add(value -> value == null || value.length() >= length);
+        checks.add(value -> value.length() >= length);
         return this;
     }
 
     public StringSchema contains(String substring) {
-        checks.add(value -> value == null || value.contains(substring));
+        checks.add(value -> value.contains(substring));
         return this;
     }
 
     @Override
     public boolean isValid(Object value) {
-        if (!(value instanceof String)) {
+        if (value == null) {
             return !isRequired;
+        }
+
+        if (!(value instanceof String)) {
+            return false;
         }
 
         String stringValue = (String) value;
