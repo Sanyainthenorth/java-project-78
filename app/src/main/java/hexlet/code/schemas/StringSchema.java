@@ -9,6 +9,8 @@ import java.util.function.Predicate;
 public final class StringSchema extends BaseSchema<String> {
 
     private final List<Predicate<String>> checks = new ArrayList<>();
+    private Integer minLength = null;
+    private final List<String> containsList = new ArrayList<>();
 
     @Override
     public StringSchema required() {
@@ -18,19 +20,30 @@ public final class StringSchema extends BaseSchema<String> {
     }
 
     public StringSchema minLength(int length) {
+        this.minLength = length;
         checks.add(value -> value == null || value.length() >= length);
         return this;
     }
 
     public StringSchema contains(String substring) {
-        checks.add(value -> value == null || value.contains(substring));
+        containsList.add(substring);
+        checks.add(value -> {
+            if (value == null) return true;
+            for (String s : containsList) {
+                if (!value.contains(s)) return false;
+            }
+            return true;
+        });
         return this;
     }
 
     @Override
     public boolean isValid(Object value) {
-        if (!(value instanceof String)) {
+        if (value == null) {
             return !isRequired;
+        }
+        if (!(value instanceof String)) {
+            return false;
         }
 
         String stringValue = (String) value;

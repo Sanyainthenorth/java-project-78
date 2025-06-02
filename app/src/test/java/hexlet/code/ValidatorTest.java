@@ -102,7 +102,7 @@ public class ValidatorTest {
         human3.put("lastName", "B");
         assertFalse(schema.isValid(human3)); // false
     }
-    
+
     @Test
     void testEmptySchema() {
         Validator v = new Validator();
