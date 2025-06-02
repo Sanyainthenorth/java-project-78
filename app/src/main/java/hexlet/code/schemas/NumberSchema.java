@@ -1,29 +1,14 @@
 package hexlet.code.schemas;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Predicate;
 
 public final class NumberSchema extends BaseSchema<Integer> {
 
-    private final List<Predicate<Integer>> checks = new ArrayList<>();
-
-    @Override
-    public NumberSchema required() {
-        this.isRequired = true;
-        checks.add(value -> value != null);
-        return this;
-    }
-
-    public NumberSchema positive() {
-        checks.add(value -> value == null || value > 0);
-        return this;
-    }
-
-    public NumberSchema range(int min, int max) {
-        checks.add(value -> value == null || (value >= min && value <= max));
-        return this;
-    }
+    private final Map<String, Predicate<Integer>> checks = new HashMap<>();
 
     @Override
     public boolean isValid(Object value) {
@@ -31,15 +16,26 @@ public final class NumberSchema extends BaseSchema<Integer> {
             return !isRequired;
         }
 
-        Integer intValue = (Integer) value;
+        Integer number = (Integer) value;
 
-        for (Predicate<Integer> check : checks) {
-            if (!check.test(intValue)) {
-                return false;
-            }
+        if (isRequired && number == null) {
+            return false;
         }
 
-        return true;
+        return checks.values().stream()
+                     .allMatch(check -> check.test(number));
+    }
+
+    public NumberSchema positive() {
+        Predicate<Integer> positiveCheck = num -> num > 0;
+        checks.put("positiveCheck", positiveCheck);
+        return this;
+    }
+
+    public NumberSchema range(int min, int max) {
+        Predicate<Integer> rangeCheck = num -> num >= min && num <= max;
+        checks.put("rangeCheck", rangeCheck);
+        return this;
     }
 }
 

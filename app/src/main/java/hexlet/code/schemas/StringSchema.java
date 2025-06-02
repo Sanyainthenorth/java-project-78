@@ -1,55 +1,48 @@
 package hexlet.code.schemas;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.function.Predicate;
 
 public final class StringSchema extends BaseSchema<String> {
 
-    private final List<Predicate<String>> rules = new ArrayList<>();
+    private final Map<String, Predicate<String>> checks = new HashMap<>();
 
     @Override
     public StringSchema required() {
         this.isRequired = true;
-        this.rules.clear();
-        rules.add(Objects::nonNull);
-        rules.add(value -> !value.isEmpty());
         return this;
     }
 
     public StringSchema minLength(int length) {
-        rules.add(value -> value == null || value.length() >= length);
+        Predicate<String> minLengthCheck = str -> str.length() >= length;
+        checks.put("minLength", minLengthCheck);
         return this;
     }
 
     public StringSchema contains(String substring) {
-        rules.add(value -> value == null || value.contains(substring));
+        Predicate<String> containsCheck = str -> str.contains(substring);
+        checks.put("contains", containsCheck);
         return this;
     }
 
     @Override
     public boolean isValid(Object value) {
-        if (value == null) {
-            return !isRequired;
-        }
         if (!(value instanceof String)) {
-            return false;
+            return !isRequired;
         }
 
         String stringValue = (String) value;
 
-        if (rules.isEmpty()) {
-            return true;
+        if (isRequired && stringValue.isEmpty()) {
+            return false;
         }
 
-        for (Predicate<String> rule : rules) {
-            if (!rule.test(stringValue)) {
-                return false;
-            }
-        }
-
-        return true;
+        return checks.values().stream()
+                     .allMatch(check -> check.test(stringValue));
     }
 }
 
