@@ -1,45 +1,29 @@
 package hexlet.code.schemas;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.function.Predicate;
 
 public final class StringSchema extends BaseSchema<String> {
 
-    private final Map<String, Predicate<String>> checks = new HashMap<>();
+    @Override
+    protected boolean isValidType(Object value) {
+        return value instanceof String;
+    }
 
     @Override
     public StringSchema required() {
-        this.isRequired = true;
+        super.required();
+        checks.put("required", str -> str != null && !str.isEmpty());
         return this;
     }
 
     public StringSchema minLength(int length) {
-        Predicate<String> minLengthCheck = str -> str.length() >= length;
-        checks.put("minLength", minLengthCheck);
+        checks.put("minLength", str -> str != null && str.length() >= length);
         return this;
     }
 
     public StringSchema contains(String substring) {
-        Predicate<String> containsCheck = str -> str.contains(substring);
-        checks.put("contains", containsCheck);
+        checks.put("contains", str -> str != null && str.contains(substring));
         return this;
     }
-
-    @Override
-    public boolean isValid(Object value) {
-        if (!(value instanceof String)) {
-            return !isRequired;
-        }
-
-        String stringValue = (String) value;
-
-        if (isRequired && stringValue.isEmpty()) {
-            return false;
-        }
-
-        return checks.values().stream()
-                     .allMatch(check -> check.test(stringValue));
-    }
 }
+
 
 
