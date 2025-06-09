@@ -18,26 +18,14 @@ public abstract class BaseSchema<T> {
      * @param value значение для проверки
      * @return {@code true}, если значение валидно, иначе {@code false}
      */
-    @SuppressWarnings("unchecked")
-    public boolean isValid(Object value) {
-        if (!isValidType(value)) {
+    public boolean isValid(T value) {
+        if (value == null) {
             return !checks.containsKey("required");
         }
 
-        T typedValue = (T) value;
-
         return checks.values().stream()
-                     .allMatch(check -> check.test(typedValue));
+                     .allMatch(check -> check.test(value));
     }
-
-    /**
-     * Проверяет, соответствует ли тип значения типу схемы.
-     * Подклассы должны переопределить этот метод.
-     *
-     * @param value значение для проверки типа
-     * @return {@code true}, если тип корректен, иначе {@code false}
-     */
-    protected abstract boolean isValidType(Object value);
 
     /**
      * Отмечает схему как обязательную для заполнения.
@@ -61,6 +49,7 @@ public abstract class BaseSchema<T> {
         return value != null;
     }
 }
+
 
 
 
