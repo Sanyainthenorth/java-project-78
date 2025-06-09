@@ -1,16 +1,18 @@
 package hexlet.code;
+
 import hexlet.code.schemas.BaseSchema;
 import hexlet.code.schemas.NumberSchema;
 import hexlet.code.schemas.StringSchema;
 import hexlet.code.schemas.MapSchema;
 import org.junit.jupiter.api.Test;
+
 import java.util.HashMap;
 import java.util.Map;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 
+import static org.junit.jupiter.api.Assertions.*;
 
 public class ValidatorTest {
+
     @Test
     public void testStringSchema() {
         Validator v = new Validator();
@@ -32,6 +34,7 @@ public class ValidatorTest {
         assertTrue(schema.isValid("hexlet"));
         assertFalse(schema.isValid("let"));
     }
+
     @Test
     public void testNumberSchema() {
         Validator v = new Validator();
@@ -54,10 +57,11 @@ public class ValidatorTest {
         assertFalse(schema.isValid(4));
         assertFalse(schema.isValid(11));
     }
+
     @Test
     public void testMapSchema() {
-        var v = new Validator();
-        var schema = v.map();
+        Validator v = new Validator();
+        MapSchema<String> schema = v.map();
         assertTrue(schema.isValid(null));
         schema.required();
         assertFalse(schema.isValid(null));
@@ -74,15 +78,15 @@ public class ValidatorTest {
         data.put("key3", "value3");
         assertFalse(schema.isValid(data));
     }
+
     @Test
     public void testShapeValidation() {
         Validator v = new Validator();
-        var schema = v.map();
+        MapSchema<String> schema = v.map();
 
         Map<String, BaseSchema<String>> schemas = new HashMap<>();
 
         schemas.put("firstName", v.string().required());
-
         schemas.put("lastName", v.string().required().minLength(2));
 
         schema.shape(schemas);
@@ -106,10 +110,71 @@ public class ValidatorTest {
     @Test
     void testEmptySchema() {
         Validator v = new Validator();
-        MapSchema schema = v.map();
+        MapSchema<String> schema = v.map();
 
         assertTrue(schema.isValid(null));
         assertTrue(schema.isValid(new HashMap<>()));
         assertTrue(schema.isValid(Map.of("key", "value")));
+    }
+
+    @Test
+    public void testNullIsValidWhenNotRequiredEvenWithOtherChecks() {
+        Validator v = new Validator();
+        StringSchema schema = v.string().minLength(10).contains("abc");
+
+        assertTrue(schema.isValid(null), "null должен быть валиден, если required не установлен");
+    }
+
+    @Test
+    public void testNullIsValidWhenNotRequiredEvenWithOtherChecksNumber() {
+        Validator v = new Validator();
+        NumberSchema schema = v.number().positive().range(1, 100);
+
+        assertTrue(schema.isValid(null), "null должен быть валиден, если required не установлен");
+    }
+
+    @Test
+    public void testNullIsValidWhenNotRequiredEvenWithOtherChecksMap() {
+        Validator v = new Validator();
+        MapSchema<String> schema = v.map().sizeof(2);
+
+        assertTrue(schema.isValid(null), "null должен быть валиден, если required не установлен");
+    }
+
+    @Test
+    public void testNullIsInvalidWhenRequiredWithOtherChecks() {
+        Validator v = new Validator();
+        StringSchema schema = v.string().required().minLength(5);
+
+        assertFalse(schema.isValid(null), "null не должен быть валиден, если required установлен");
+    }
+
+    @Test
+    public void testEmptyStringWithMinLength() {
+        Validator v = new Validator();
+        StringSchema schema = v.string().minLength(1);
+
+        assertTrue(schema.isValid(""), "пустая строка валидна, если required не установлен");
+
+        schema.required();
+        assertFalse(schema.isValid(""), "пустая строка невалидна, если required установлен");
+    }
+
+    @Test
+    public void testShapeAllowsNullValuesWhenNotRequired() {
+        Validator v = new Validator();
+        MapSchema<String> schema = v.map();
+
+        Map<String, BaseSchema<String>> schemas = new HashMap<>();
+        schemas.put("firstName", v.string());  // не required
+        schemas.put("lastName", v.string().minLength(2)); // не required
+
+        schema.shape(schemas);
+
+        Map<String, String> human = new HashMap<>();
+        human.put("firstName", null);
+        human.put("lastName", null);
+
+        assertTrue(schema.isValid(human), "null значения должны быть валидны, если required не установлен");
     }
 }
